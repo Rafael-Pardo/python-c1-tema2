@@ -14,11 +14,41 @@ Nota: Asegúrate de incluir una estructura HTML válida en la plantilla.
 from flask import Flask, render_template_string
 
 # Implementa la plantilla HTML aquí
-TEMPLATE = """
-<!doctype html>
-...
-</html>
-"""
+TEMPLATE = """<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Saludo Personal</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .greeting {
+            text-align: center;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="greeting">
+        <h1>¡hola, {{ nombre }}!</h1>
+        <p>Bienvenido/a a nuestra página web.</p>
+    </div>
+</body>
+</html>"""
 
 def create_app():
     """
@@ -33,8 +63,8 @@ def create_app():
         """
         # Utiliza render_template_string para renderizar la plantilla con el nombre proporcionado:
 
-        pass
-
+        return render_template_string(TEMPLATE, nombre=nombre)
+        
     return app
 
 if __name__ == '__main__':
