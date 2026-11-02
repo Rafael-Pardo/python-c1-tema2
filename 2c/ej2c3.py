@@ -40,8 +40,8 @@ products = [
     {"id": 4, "name": "Office Desk", "price": 249.99, "category": "furniture"},
     {"id": 5, "name": "Ergonomic Chair", "price": 189.99, "category": "furniture"},
     {"id": 6, "name": "Coffee Maker Pro", "price": 89.99, "category": "appliances"},
-    {"id": 7, "name": "Wireless Headphones", "price": 129.99, "category": "electronics"},
-    {"id": 8, "name": "Smart Watch", "price": 199.99, "category": "electronics"}
+    {"id": 7, "name": "Smart Watch", "price": 199.99, "category": "electronics"},
+    {"id": 8, "name": "USB Cable", "price": 19.99, "category": "accessories"}
 ]
 
 def create_app():
@@ -64,8 +64,27 @@ def create_app():
         # 1. Obtén los parámetros de consulta usando request.args
         # 2. Filtra la lista de productos según los parámetros proporcionados
         # 3. Devuelve la lista filtrada en formato JSON con código 200
-        pass
-
+        filtered_products = products.copy()
+        
+        category = request.args.get('category')
+        min_price = request.args.get('min_price', type=float)
+        max_price = request.args.get('max_price', type=float)
+        name = request.args.get('name')
+        
+        if category:
+            filtered_products = [p for p in filtered_products if p['category'] == category]
+        
+        if min_price is not None:
+            filtered_products = [p for p in filtered_products if p['price'] >= min_price]
+        
+        if max_price is not None:
+            filtered_products = [p for p in filtered_products if p['price'] <= max_price]
+        
+        if name:
+           filtered_products = [p for p in filtered_products if name.lower() in p['name'].lower()]
+        
+        return jsonify(filtered_products), 200
+        
     return app
 
 if __name__ == '__main__':

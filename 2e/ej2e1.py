@@ -50,7 +50,7 @@ def create_app():
         # 1. Accede a los encabezados de la solicitud usando request.headers
         # 2. Convierte los encabezados a un formato adecuado para JSON
         # 3. Devuelve los encabezados como respuesta JSON
-
+        return jsonify(dict(request.headers))
 
 
     @app.route('/browser', methods=['GET'])
@@ -66,7 +66,36 @@ def create_app():
         #    - El sistema operativo (Windows, macOS, Android, iOS, etc.)
         #    - Si es un dispositivo móvil (detecta cadenas como "Mobile", "Android", "iPhone")
         # 3. Devuelve la información como respuesta JSON
-        pass
+        user_agent = request.headers.get('User-Agent')
+        # Implementación básica de análisis (puede ser mejorada)
+        browser = "Desconocido"
+        os = "Desconocido"
+        is_mobile = False
+
+        if "Chrome" in user_agent:
+            browser = "Chrome"
+        elif "Firefox" in user_agent:
+            browser = "Firefox"
+        elif "Safari" in user_agent:
+            browser = "Safari"
+
+        if "Windows" in user_agent:
+            os = "Windows"
+        elif "Mac OS" in user_agent:
+            os = "macOS"
+        elif "Android" in user_agent:
+            os = "Android"
+        elif "iOS" in user_agent:
+            os = "iOS"
+
+        if "Mobile" in user_agent or "Android" in user_agent or "iPhone" in user_agent:
+            is_mobile = True
+
+        return jsonify({
+            "browser": browser,
+            "os": os,
+            "is_mobile": is_mobile
+        })
 
     @app.route('/echo', methods=['POST'])
     def echo():
@@ -81,7 +110,17 @@ def create_app():
         #    - Para form data: usa request.form
         #    - Para texto plano: usa request.data
         # 3. Devuelve los mismos datos con el mismo tipo de contenido
-        pass
+        content_type = request.content_type
+        
+        if 'application/json' in content_type:
+                    return jsonify(request.get_json())
+        elif 'application/x-www-form-urlencoded' in content_type:
+                    return dict(request.form)
+        elif 'text/plain' in content_type:
+                    return request.data.decode(), 200, {'Content-Type': 'text/plain'}
+        
+                # Default to JSON if content type is not recognized
+        return jsonify({"error": "Unsupported Content-Type"}), 400
 
     @app.route('/validate-id', methods=['POST'])
     def validate_id():
@@ -95,7 +134,22 @@ def create_app():
         # 1. Obtén el campo "id_number" del JSON enviado
         # 2. Valida que cumpla con las reglas especificadas
         # 3. Devuelve un JSON con el resultado de la validación
-        pass
+        data = request.get_json()
+        id_number = data.get("id_number")
+
+        if not id_number:
+            return jsonify({"error": "ID number is required"}), 400
+
+        if len(id_number) != 9:
+            return jsonify({"error": "ID number must have exactly 9 characters"}), 400
+
+        if not id_number[:8].isdigit():
+            return jsonify({"error": "First 8 characters must be digits"}), 400
+
+        if not id_number[8].isalpha():
+            return jsonify({"error": "Last character must be a letter"}), 400
+
+        return jsonify({"valid": True})
 
     return app
 
